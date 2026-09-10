@@ -9,7 +9,7 @@ pipeline{
     agent any
     
     environment {
-        discord = credentials('DISCORD_WEBHOOK')
+        DISCORD_URL = credentials('DISCORD_WEBHOOK')
     }
 
     stages{
@@ -59,11 +59,11 @@ pipeline{
             }
         }
     }
-    
+
     post {
         success {
             discordSend(
-                webhookURL: "${env.discord}",
+                webhookURL: "${env.DISCORD_URL}",
                 description: "Jenkins Pipeline Build",
                 footer: "Footer Text",
                 link: env.BUILD_URL,
@@ -73,7 +73,7 @@ pipeline{
         }
         failure {
             discordSend(
-                webhookURL: "${env.discord}",
+                webhookURL: "${env.DISCORD_URL}",
                 description: "Jenkins Pipeline Build",
                 footer: "Footer Text",
                 link: env.BUILD_URL,
