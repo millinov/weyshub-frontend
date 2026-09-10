@@ -7,6 +7,11 @@ def branch = 'main'
 
 pipeline{
     agent any
+    
+    environment {
+        discord = credentials('DISCORD_WEBHOOK')
+    }
+
     stages{
         stage ('pulling new code'){
          steps{
@@ -54,10 +59,8 @@ pipeline{
             }
         }
     }
+    
     post {
-        environment {
-            discord = credentials('DISCORD_WEBHOOK')
-        }
         success {
             discordSend(
                 webhookURL: "${env.discord}",
