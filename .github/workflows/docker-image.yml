@@ -51,7 +51,7 @@ jobs:
       uses: tsickert/discord-webhook@v7.0.0  
       with:
           webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-          username: millinov
+          username: millinov-webhook-frontend
           avatar-url: https://cdn.discordapp.com/avatars/325643144236367873/ec0a9440f1e3f7e5ff8a39be456d813f.png?size=1024
           embed-title: "Millinov has successfully run GitHub Action and use Discord Webhook for Frontend Repo"
           embed-url: "https://youtu.be/cvj0RvSQnr4?si=W_ugSOZU7glJdW62"
