@@ -52,8 +52,7 @@ pipeline{
                             // returnStdout: true
                             // ).trim()
                             env.WEB_STATUS = sh(
-                                script: "ssh -o StrictHostKeyChecking=no ${buildServer} 
-                                'curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000' ", 
+                                script: "ssh -o StrictHostKeyChecking=no ${buildServer} 'curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000' ", 
                                 returnStdout: true
                             ).trim()
 
