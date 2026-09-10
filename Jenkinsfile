@@ -10,9 +10,11 @@ pipeline{
     
     environment {
         DISCORD_URL = credentials('DISCORD_WEBHOOK')
+        WEB_STATUS = '';
     }
 
     stages{
+
         stage ('pulling new code'){
          steps{
              sshagent(credentials: [secret]) {
@@ -24,17 +26,47 @@ pipeline{
                 }
             }
         }
+
         stage ('build apps'){
             steps{
                 sshagent(credentials: [secret]) {
                     sh """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
                     cd ${directory}
                     docker compose build
+                    docker compose up -d
                     exit
                     EOF"""
                 }
             }
         }
+        
+        stage ('test apps'){
+            steps{
+                sshagent(credentials: [secret]) {
+                    env.WEB_STATUS = sh(
+                        script: """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
+                                curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000
+                                exit
+                                EOF""",
+                        returnStdout: true
+                    ).trim()
+
+                    echo "HTTP Status Code is ${env.WEB_STATUS}"
+                }
+            }
+        }
+
+        // stage('Deploy Application') {
+        //     // This stage ONLY runs if wget was successful (exit code 0)
+        //     when {
+        //         environment name: 'WGET_EXIT_CODE', value: '0'
+        //     }
+        //     steps {
+        //         echo "Website is up! Proceeding with deployment..."
+        //         // Your deployment commands go here
+        //     }
+        // }
+
         stage ('push to registry'){
             steps{
                 sshagent(credentials: [secret]) {
@@ -46,6 +78,7 @@ pipeline{
                 }
             }
         }
+
         stage ('deploy'){
             steps{
                 sshagent(credentials: [secret]) {
@@ -60,25 +93,26 @@ pipeline{
         }
     }
 
+
     post {
         success {
             discordSend(
                 webhookURL: "${env.DISCORD_URL}",
-                description: "Jenkins Pipeline Build",
-                footer: "Footer Text",
-                link: env.BUILD_URL,
+                description: "Click the link to check the jenkins build",
+                footer: "Jika anda menerima pesan ini berarti build jenkins tidak ada error",
+                link: "https://jenkins.millinov.studentdumbways.my.id/job/wayshub-frontend/",
                 result: currentBuild.currentResult,
-                title: env.JOB_NAME
+                title: "Jenkins build for wayshub-frontend has run successfully!"
             )
         }
         failure {
             discordSend(
                 webhookURL: "${env.DISCORD_URL}",
-                description: "Jenkins Pipeline Build",
-                footer: "Footer Text",
-                link: env.BUILD_URL,
+                description: "Jenkins build terjadi kegagalan, check build di halaman jenkins",
+                footer: "Click the link to check the jenkins build",
+                link: "https://jenkins.millinov.studentdumbways.my.id/job/wayshub-frontend/",
                 result: currentBuild.currentResult,
-                title: env.JOB_NAME
+                title: "Jenkins build for wayshub-frontend has failed :("
             )
         }
     }
