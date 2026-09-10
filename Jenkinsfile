@@ -10,7 +10,7 @@ pipeline{
     stages{
         stage ('pulling new code'){
          steps{
-             sshagent(credentials: credentials: [secret]) {
+             sshagent(credentials: [secret]) {
                     sh """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
                     cd ${directory}
 		            git pull origin ${branch}
