@@ -43,12 +43,17 @@ pipeline{
         stage ('test apps'){
             steps{
                 sshagent(credentials: [secret]) {
-                        script {
-                            env.WEB_STATUS = sh(
-                            script: """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
-                                    curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000
-                                    exit
-                                    EOF""",
+                        // script {
+                        //     env.WEB_STATUS = sh(
+                        //     script: """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
+                        //             curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000
+                        //             exit
+                        //             EOF""",
+                        //     returnStdout: true
+                        // ).trim()
+                        env.WEB_STATUS = sh(
+                            script: "ssh -o StrictHostKeyChecking=no ${buildServer} 
+                                    'curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000' ", 
                             returnStdout: true
                         ).trim()
 
