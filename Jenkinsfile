@@ -58,17 +58,21 @@ pipeline{
                     script {
                         sleep 10 
                         def command = """
-                            ssh -q -o StrictHostKeyChecking=no ${buildServer} << 'EOF'
-                            curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
-                            EOF
-                        """
+                                        ssh -o StrictHostKeyChecking=no ${buildServer} << 'EOF'
+                                        curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
+                                        EOF
+                                    """
 
                         env.WEB_STATUS = sh(
                             script: command,
                             returnStdout: true
                         ).trim()
 
-                        echo "HTTP Status Code is ${env.WEB_STATUS}"
+                        // Filter out any lingering Ubuntu login banner text
+                        if (env.WEB_STATUS.contains('\n')) {
+                            def lines = env.WEB_STATUS.split('\n')
+                            env.WEB_STATUS = lines[-1].trim() // Grabs only the very last line (the 200 code)
+                        }
 
                         if (env.WEB_STATUS != '200') {
                             error "Application test failed! HTTP Status: ${env.WEB_STATUS}"
