@@ -42,17 +42,6 @@ pipeline{
         
         stage ('test apps'){
             steps{
-                // script {
-                //     def command = 'curl -s -o /dev/null -w \"%{http_code} \\n\" ' + testLink 
-    
-                //     env.WEB_STATUS = sh(
-                //         script: command, 
-                //         returnStdout: true
-                //     ).trim()
-
-                //     echo "HTTP Status Code is ${env.WEB_STATUS}"
-                // }
-                
                 sshagent(credentials: [secret]) {
                     script {
                         sleep 5
@@ -63,19 +52,8 @@ pipeline{
                             returnStdout: true
                         ).trim()
 
-                        println "--- START RAW OUTPUT ---"
-                        println "webStatus = [${webStatus}]"
-                        println "webStatus type = ${webStatus?.getClass()}"
-                        println "--- END RAW OUTPUT ---"
-
-                        env.WEB_STATUS = webStatus
-                        
-                        println "--- START RAW OUTPUT ---"
-                        println "webStatus = [${env.WEB_STATUS}]"
-                        println "--- END RAW OUTPUT ---"
-
                         if (env.WEB_STATUS != '200') {
-                            error "Application test failed! HTTP Status: ${env.WEB_STATUS}"
+                            error "Application test failed! HTTP Status: " + webStatus
                         }
 
                         echo "Application is running successfully!"
@@ -84,20 +62,13 @@ pipeline{
             }
         }
 
-        // stage('Deploy Application') {
-        //     when {
-        //         environment name: 'WEB_STATUS', value: '200'
-        //     }
-        //     steps {
-        //
-        //     }
-        // }
-
         stage ('push to registry'){
             steps{
                 sshagent(credentials: [secret]) {
                     sh """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
                     cd ${directory}
+                    docker compose down
+                    docker push ${image}
                     echo "docker push ${image}"
                     exit
                     EOF"""
