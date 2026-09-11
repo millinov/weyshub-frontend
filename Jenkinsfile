@@ -52,6 +52,8 @@ pipeline{
                             returnStdout: true
                         ).trim()
 
+                        echo webStatus
+
                         if (webStatus != '200') {
                             error "Application test failed! HTTP Status: " + webStatus
                         }
