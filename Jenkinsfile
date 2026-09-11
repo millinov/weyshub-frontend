@@ -1,6 +1,4 @@
 def secret = 'jenkins-miralssh'
-def buildServer = 'miral@34.101.172.163'
-def frontendServer = 'miral@34.101.210.112'
 def testLink = 'http://localhost:3000'
 def directory = '~/project/wayshub-frontend'
 def image = 'millinovz/wayshub-frontend:v1'
@@ -11,6 +9,8 @@ pipeline{
     
     environment {
         DISCORD_URL = credentials('DISCORD_WEBHOOK')
+        USER_FRONTEND = credentials('USER_FRONTEND')
+        USER_BUILD = credentials('USER_BUILD')
     }
 
     stages{
@@ -18,7 +18,7 @@ pipeline{
         stage ('pulling new code'){
          steps{
              sshagent(credentials: [secret]) {
-                    sh """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
+                    sh """ssh -o StrictHostKeyChecking=no ${env.USER_BUILD} << EOF
                     cd ${directory}
 		            git pull origin ${branch}
                     exit
@@ -30,7 +30,7 @@ pipeline{
         stage ('build apps'){
             steps{
                 sshagent(credentials: [secret]) {
-                    sh """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
+                    sh """ssh -o StrictHostKeyChecking=no ${env.USER_BUILD} << EOF
                     cd ${directory}
                     docker compose build
                     docker compose up -d
@@ -45,7 +45,7 @@ pipeline{
                 sshagent(credentials: [secret]) {
                     script {
                         sleep 5
-                        def command = """ssh -o StrictHostKeyChecking=no ${buildServer} 'curl -s -o /dev/null -w "%{http_code}" http://localhost:3000'"""
+                        def command = """ssh -o StrictHostKeyChecking=no ${env.USER_BUILD} 'curl -s -o /dev/null -w "%{http_code}" http://localhost:3000'"""
 
                         def webStatus = sh(
                             script: command,
@@ -65,7 +65,7 @@ pipeline{
         stage ('push to registry'){
             steps{
                 sshagent(credentials: [secret]) {
-                    sh """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
+                    sh """ssh -o StrictHostKeyChecking=no ${env.USER_BUILD} << EOF
                     cd ${directory}
                     docker compose down
                     docker push ${image}
@@ -79,7 +79,7 @@ pipeline{
         stage ('deploy'){
             steps{
                 sshagent(credentials: [secret]) {
-                    sh """ssh -o StrictHostKeyChecking=no ${frontendServer} << EOF
+                    sh """ssh -o StrictHostKeyChecking=no ${env.USER_FRONTEND} << EOF
                     cd ~/docker
                     docker compose down
 		            docker compose up -d
