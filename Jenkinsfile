@@ -97,7 +97,7 @@ pipeline{
         success {
             discordSend(
                 webhookURL: "${env.DISCORD_URL}",
-                description: "Click the link to check the jenkins build",
+                description: "Click the link to check the jenkins build 1",
                 footer: "Jika anda menerima pesan ini berarti build jenkins tidak ada error",
                 link: "https://jenkins.millinov.studentdumbways.my.id/job/wayshub-frontend/",
                 result: currentBuild.currentResult,
