@@ -57,10 +57,9 @@ pipeline{
                 sshagent(credentials: [secret]) {
                     script {
                         sleep 10 
-
                         def command = """
-                            ssh -o StrictHostKeyChecking=no ${buildServer} \
-                            \\\"curl -s -o /dev/null -w \\\'%{http_code}\\n\\\' http://localhost:3000 \\\"
+                            ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
+                            curl -s -o /dev/null -w "%{http_code}\\n" http://localhost:3000 EOF
                         """
 
                         env.WEB_STATUS = sh(
