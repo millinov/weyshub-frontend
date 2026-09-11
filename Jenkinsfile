@@ -1,6 +1,7 @@
 def secret = 'jenkins-miralssh'
 def buildServer = 'miral@34.101.172.163'
 def frontendServer = 'miral@34.101.210.112'
+def testLink = 'http://34.101.172.163:3000'
 def directory = '~/project/wayshub-frontend'
 def image = 'millinovz/wayshub-frontend:v1'
 def branch = 'main'
@@ -42,36 +43,40 @@ pipeline{
         
         stage ('test apps'){
             steps{
-                sshagent(credentials: [secret]) {
-                    script {
-                        // env.WEB_STATUS = sh(
-                        // script: """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
-                        //         curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000
-                        //         exit
-                        //         EOF""",
-                        // returnStdout: true
-                        // ).trim()
-                        def command = """ssh -o StrictHostKeyChecking=no ${buildServer} 'curl -s -o /dev/null -w \"%{http_code} \\n \" http://localhost:3000' """
-        
-                        env.WEB_STATUS = sh(
-                            script: command, 
-                            returnStdout: true
-                        ).trim()
+                script {
+                    // env.WEB_STATUS = sh(
+                    // script: """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
+                    //         curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000
+                    //         exit
+                    //         EOF""",
+                    // returnStdout: true
+                    // ).trim()
+                    def command = 'curl -s -o /dev/null -w "%{http_code} \n" ' + testLink 
+    
+                    env.WEB_STATUS = sh(
+                        script: command, 
+                        returnStdout: true
+                    ).trim()
 
-                        echo "HTTP Status Code is ${env.WEB_STATUS}"
-                    }
+                    echo "HTTP Status Code is ${env.WEB_STATUS}"
+                }
+                
+                sshagent(credentials: [secret]) {
+                    sh """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
+                    cd ${directory}
+                    docker compose down
+                    exit
+                    EOF"""
                 }
             }
         }
 
         // stage('Deploy Application') {
-        //     // This stage ONLY runs if wget was successful (exit code 0)
         //     when {
-        //         environment name: 'WGET_EXIT_CODE', value: '0'
+        //         environment name: 'WEB_STATUS', value: '200'
         //     }
         //     steps {
-        //         echo "Website is up! Proceeding with deployment..."
-        //         // Your deployment commands go here
+        //
         //     }
         // }
 
