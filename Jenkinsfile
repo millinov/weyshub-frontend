@@ -51,7 +51,7 @@ pipeline{
                     //         EOF""",
                     // returnStdout: true
                     // ).trim()
-                    def command = 'curl -s -o /dev/null -w "%{http_code} \n" ' + testLink 
+                    def command = 'curl -s -o /dev/null -w \"%{http_code} \\n\" ' + testLink 
     
                     env.WEB_STATUS = sh(
                         script: command, 
