@@ -55,8 +55,8 @@ pipeline{
                 // }
                 
                 sshagent(credentials: [secret]) {
-                    sh """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
-                    EOF"""
+
+                    sh """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF """
                     script {
                         def command = 'curl -s -o /dev/null -w \"%{http_code} \\n\" ' + testLink 
         
@@ -67,6 +67,8 @@ pipeline{
 
                         echo "HTTP Status Code is ${env.WEB_STATUS}"
                     }
+
+                    sh "EOF"
                 }
             }
         }
