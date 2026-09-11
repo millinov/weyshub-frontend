@@ -70,6 +70,10 @@ pipeline{
                         println "--- END RAW OUTPUT ---"
 
                         env.WEB_STATUS = webStatus
+                        
+                        println "--- START RAW OUTPUT ---"
+                        println "webStatus = [${env.WEB_STATUS}]"
+                        println "--- END RAW OUTPUT ---"
 
                         if (env.WEB_STATUS != '200') {
                             error "Application test failed! HTTP Status: ${env.WEB_STATUS}"
