@@ -55,20 +55,25 @@ pipeline{
                 // }
                 
                 sshagent(credentials: [secret]) {
-
-                    sh """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF """
                     script {
-                        def command = 'curl -s -o /dev/null -w \"%{http_code} \\n\" ' + testLink 
-        
+                        def command = """
+                            ssh -o StrictHostKeyChecking=no ${buildServer} \
+                            "curl -s -o /dev/null -w '%{http_code}' http://localhost:3000"
+                        """
+
                         env.WEB_STATUS = sh(
-                            script: command, 
+                            script: command,
                             returnStdout: true
                         ).trim()
 
                         echo "HTTP Status Code is ${env.WEB_STATUS}"
-                    }
 
-                    sh "EOF"
+                        if (env.WEB_STATUS != '200') {
+                            error "Application test failed! HTTP Status: ${env.WEB_STATUS}"
+                        }
+
+                        echo "Application is running successfully!"
+                    }
                 }
             }
         }
