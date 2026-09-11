@@ -59,14 +59,17 @@ pipeline{
                         sleep 5
                         def command = """ssh -o StrictHostKeyChecking=no ${buildServer} 'curl -s -o /dev/null -w "%{http_code}" http://localhost:3000'"""
 
-                        env.WEB_STATUS = sh(
+                        def webStatus = sh(
                             script: command,
                             returnStdout: true
                         ).trim()
 
                         println "--- START RAW OUTPUT ---"
-                        println env.WEB_STATUS
-                        println "---- END RAW OUTPUT ----"
+                        println "webStatus = [${webStatus}]"
+                        println "webStatus type = ${webStatus?.getClass()}"
+                        println "--- END RAW OUTPUT ---"
+
+                        env.WEB_STATUS = webStatus
 
                         if (env.WEB_STATUS != '200') {
                             error "Application test failed! HTTP Status: ${env.WEB_STATUS}"
