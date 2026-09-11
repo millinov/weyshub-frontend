@@ -11,7 +11,6 @@ pipeline{
     
     environment {
         DISCORD_URL = credentials('DISCORD_WEBHOOK')
-        WEB_STATUS = '';
     }
 
     stages{
@@ -77,11 +76,6 @@ pipeline{
 
                         if (env.WEB_STATUS != '200') {
                             error "Application test failed! HTTP Status: ${env.WEB_STATUS}"
-                        }
-                        // Filter out any lingering Ubuntu login banner text
-                        if (env.WEB_STATUS.contains('\n')) {
-                            def lines = env.WEB_STATUS.split('\n')
-                            env.WEB_STATUS = lines[-1].trim() // Grabs only the very last line (the 200 code)
                         }
 
                         echo "Application is running successfully!"
