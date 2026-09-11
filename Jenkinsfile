@@ -57,14 +57,15 @@ pipeline{
                 sshagent(credentials: [secret]) {
                     script {
                         sleep 5
-                        def dq = '"'
-                        def sq = "'"
-
-                        // Concatenate the command cleanly without any backslashes or triple-quotes
-                        def command = "ssh -o StrictHostKeyChecking=no ${buildServer} " + dq + "curl -s -o /dev/null -w " + sq + "%{http_code}" + sq + " http://localhost:3000" + dq
+                        def commandArgs = [
+                            'ssh',
+                            '-o', 'StrictHostKeyChecking=no',
+                            "${buildServer}",
+                            'curl -s -o /dev/null -w "%{http_code}" http://localhost:3000'
+                        ]
 
                         env.WEB_STATUS = sh(
-                            script: command,
+                            script: commandArgs.join(' '), // Joins arguments safely, or use custom execution if supported
                             returnStdout: true
                         ).trim()
 
