@@ -58,7 +58,7 @@ pipeline{
                     script {
                         sleep 10 
                         def command = """
-                                        ssh -o StrictHostKeyChecking=no ${buildServer} << 'EOF'
+                                        ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
                                         curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
                                         EOF
                                     """
