@@ -67,6 +67,10 @@ pipeline{
                             returnStdout: true
                         ).trim()
 
+                        println "--- START RAW OUTPUT ---"
+                        println env.WEB_STATUS
+                        println "---- END RAW OUTPUT ----"
+
                         // Filter out any lingering Ubuntu login banner text
                         if (env.WEB_STATUS.contains('\n')) {
                             def lines = env.WEB_STATUS.split('\n')
