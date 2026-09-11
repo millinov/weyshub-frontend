@@ -1,7 +1,7 @@
 def secret = 'jenkins-miralssh'
 def buildServer = 'miral@34.101.172.163'
 def frontendServer = 'miral@34.101.210.112'
-def testLink = 'http://34.101.172.163:3000'
+def testLink = 'http://localhost:3000'
 def directory = '~/project/wayshub-frontend'
 def image = 'millinovz/wayshub-frontend:v1'
 def branch = 'main'
@@ -43,30 +43,30 @@ pipeline{
         
         stage ('test apps'){
             steps{
-                script {
-                    // env.WEB_STATUS = sh(
-                    // script: """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
-                    //         curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000
-                    //         exit
-                    //         EOF""",
-                    // returnStdout: true
-                    // ).trim()
-                    def command = 'curl -s -o /dev/null -w \"%{http_code} \\n\" ' + testLink 
+                // script {
+                //     def command = 'curl -s -o /dev/null -w \"%{http_code} \\n\" ' + testLink 
     
-                    env.WEB_STATUS = sh(
-                        script: command, 
-                        returnStdout: true
-                    ).trim()
+                //     env.WEB_STATUS = sh(
+                //         script: command, 
+                //         returnStdout: true
+                //     ).trim()
 
-                    echo "HTTP Status Code is ${env.WEB_STATUS}"
-                }
+                //     echo "HTTP Status Code is ${env.WEB_STATUS}"
+                // }
                 
                 sshagent(credentials: [secret]) {
                     sh """ssh -o StrictHostKeyChecking=no ${buildServer} << EOF
-                    cd ${directory}
-                    docker compose down
-                    exit
                     EOF"""
+                    script {
+                        def command = 'curl -s -o /dev/null -w \"%{http_code} \\n\" ' + testLink 
+        
+                        env.WEB_STATUS = sh(
+                            script: command, 
+                            returnStdout: true
+                        ).trim()
+
+                        echo "HTTP Status Code is ${env.WEB_STATUS}"
+                    }
                 }
             }
         }
