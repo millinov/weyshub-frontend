@@ -52,7 +52,7 @@ pipeline{
                             returnStdout: true
                         ).trim()
 
-                        if (env.WEB_STATUS != '200') {
+                        if (webStatus != '200') {
                             error "Application test failed! HTTP Status: " + webStatus
                         }
 
