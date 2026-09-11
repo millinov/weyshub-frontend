@@ -60,7 +60,7 @@ pipeline{
 
                         def command = """
                             ssh -o StrictHostKeyChecking=no ${buildServer} \
-                            \\\"curl -s -o /dev/null -w '%{http_code}\\n' http://localhost:3000 \\\"
+                            \\\"curl -s -o /dev/null -w \\\'%{http_code}\\n\\\' http://localhost:3000 \\\"
                         """
 
                         env.WEB_STATUS = sh(
